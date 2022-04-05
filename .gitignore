@@ -1,0 +1,7 @@
+/*sml*/
+^*sml*$
+.sml~
+*.pdf
+*.txt
+*.sml#
+/*sml*

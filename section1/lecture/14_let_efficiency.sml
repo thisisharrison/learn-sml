@@ -2,6 +2,7 @@
 (* Section 1: Let Expressions to Avoid Repeated Computation *)
 
 (* badly named: evaluates to 0 on empty list *)
+(* This is O n ^2 because each recursive call calls bad_max twice *)
 fun bad_max (xs : int list) =
     if null xs
     then 0

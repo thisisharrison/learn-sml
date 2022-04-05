@@ -42,3 +42,6 @@ val abs_of_z_simpler = abs z;
     - type check expression and extend static environment (before program runs)
     - evaluate expression and extend dynamic environment (as program runs)
 *)
+
+(* use "section1/lecture/3_our_first_program.sml"; *)
+(* eval to () which is type unit *)
