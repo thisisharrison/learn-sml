@@ -20,6 +20,15 @@ fun all_except_option e =
 		            NONE => NONE
 		            | SOME y => SOME (x::y)
 
+fun all_except_option_v2 (s, xs) = 
+   case xs of 
+      [] => NONE
+      | x::xs' => if same_string(s, xs)
+                  then SOME xs'
+                  else case all_except_option_v2(s, xs') of 
+                     NONE => NONE
+                     | SOME y => SOME(x::y)
+
 (* Q1b *)
 fun get_substitutions1 e = 
    case e of 
@@ -34,6 +43,13 @@ fun get_substitutions1 e =
                | SOME names => names @ names'
          end
 
+fun get_substitutions1_v2(substitutions,str) =
+      case substitutions of
+	      [] => []
+         | x::xs => case all_except_option(str,x) of
+                     NONE => get_substitutions1(xs,str)
+                     | SOME y => y @ get_substitutions1(xs,str)
+
 (* Q1c *)
 fun get_substitutions2(list, target) = 
    let
@@ -42,8 +58,22 @@ fun get_substitutions2(list, target) =
          [] => acc
          | x::xs' => 
             case all_except_option(target, x) of
-               NONE => acc
+               NONE => f(xs', acc)
                | SOME names => f(xs', acc@names)
+   in
+     f(list, [])
+   end
+
+fun get_substitutions2_v2(list, target) = 
+   let
+      fun f(xs, acc) = 
+      case xs of
+         [] => acc
+         | x::xs' => 
+            f((case all_except_option(target, x) of
+               NONE => acc
+               | SOME names => acc@names)
+            , xs')
    in
      f(list, [])
    end
@@ -80,14 +110,19 @@ fun card_color card =
    case card of
 	   (Clubs, _) => Black
       | (Spades, _)  => Black
-      | (_, _) => Red
+      | (Hearts, _)  => Red
+      | (Diamonds, _)  => Red
+      (* | (_, _) => Red --> better to list all fo them *)
 
 (* Q2b *)
 fun card_value card =
    case card of
 	   (_, Ace) => 11
       | (_, Num x) => x
-      | (_, _) => 10
+      | (_, Queen) => 10
+      | (_, Jack) => 10
+      | (_, King) => 10
+      (* | (_, _) => 10 --> better to list all of them *)
       
 (* Q2c *)
 fun remove_card(cs, c, e) = 
@@ -145,3 +180,21 @@ fun officiate(cs, moves, goal) =
    in
       loop([], cs, moves, goal)
    end
+
+fun officiate_v2 (cards,moves,goal) =
+    let 
+        fun loop (current_cards,cards_left,moves_left) =
+            case moves_left of
+                [] => score(current_cards,goal)
+              | (Discard c)::tail => 
+                loop (remove_card(current_cards,c,IllegalMove),cards_left,tail)
+              | Draw::tail =>
+                (* note: must score immediately if go over goal! *)
+                case cards_left of
+                    [] => score(current_cards,goal)
+                  | c::rest => if sum_cards (c::current_cards) > goal
+                               then score(c::current_cards,goal)
+                               else loop (c::current_cards,rest,tail)
+    in 
+        loop ([],cards,moves)
+    end
